@@ -67,26 +67,52 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENTS_LIST_PAGE_TITLE'));
 	}
 
-	protected function getSomeElementList(): array
-	{
-		//Демо-данные для грида
-		$items = [
-			['ID' => 1, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE 1', 'TEXT' => 'TEXT 1', 'ACTIVE' => 1],
-			['ID' => 2, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE <script>alert("2 !!!")</script>', 'TEXT' => 'TEXT 2', 'ACTIVE' => 1],
-			['ID' => 3, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE 3', 'TEXT' => 'TEXT 3', 'ACTIVE' => 0],
-		];
-		$preparedItems = [];
-		foreach ($items as $item)
-		{
-			$item['DETAIL_URL'] = $this->getDetailPageUrl($item['ID']);
-			$item['DATE_MODIFY'] = $item['DATE_MODIFY'] instanceof DateTime
-				? $item['DATE_MODIFY']->toString()
-				: null;
+    protected function getSomeElementList(): array
+    {
+        $result = SomeElementTable::getList([
+            'select' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE', 'INFO_COUNT'],
+            'runtime' => [
+                new \Bitrix\Main\Entity\ReferenceField(
+                    'INFO',
+                    \Exam31\Ticket\InfoTable::class,
+                    ['=this.ID' => 'ref.ELEMENT_ID'],
+                    ['join_type' => 'LEFT']
+                ),
+                new \Bitrix\Main\Entity\ExpressionField(
+                    'INFO_COUNT',
+                    'COUNT(%s)',
+                    ['INFO.ID']
+                )
+            ],
+            'group' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE'],
+            'order' => ['ID' => 'ASC'],
+        ]);
 
-			$preparedItems[] = $item;
-		}
-		return $preparedItems;
-	}
+        $preparedItems = [];
+
+        while ($item = $result->fetch()) {
+            $item['ACTIVE'] = $item['ACTIVE'] == 1
+                ? Loc::getMessage('EXAM31_ELEMENTS_ACTIVE_VALUE_YES')
+                : Loc::getMessage('EXAM31_ELEMENTS_ACTIVE_VALUE_NO');
+
+            $item['DATE_MODIFY'] = $item['DATE_MODIFY'] instanceof DateTime
+                ? $item['DATE_MODIFY']->toString()
+                : null;
+
+            $item['TITLE'] = htmlspecialcharsbx($item['TITLE']);
+
+            $item['TEXT'] = htmlspecialcharsbx($item['TEXT']);
+
+            $item['DETAIL_URL'] = $this->getDetailPageUrl($item['ID']);
+
+            $item['INFO_URL'] = $this->getInfoPageUrl($item['ID']);
+
+            $preparedItems[] = $item;
+        }
+
+        return $preparedItems;
+    }
+
 
 	protected function prepareGrid($items): array
 	{
@@ -112,7 +138,8 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 			['id' => 'DATE_MODIFY', 'default' => true, 'name' => $fieldsLabel['DATE_MODIFY'] ?? 'DATE_MODIFY'],
 			['id' => 'TITLE', 'default' => true, 'name' => $fieldsLabel['TITLE'] ?? 'TITLE'],
 			['id' => 'TEXT', 'default' => true, 'name' => $fieldsLabel['TEXT'] ?? 'TEXT'],
-			['id' => 'DETAIL', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME')],
+            ['id' => 'DETAIL', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME')],
+            ['id' => 'INFO', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_INFO_NAME')],
 		];
 	}
 	protected function getGridRows(array $items): array
@@ -134,6 +161,7 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 					'TEXT' => $item["TEXT"],
 					'ACTIVE' => $item["ACTIVE"],
 					'DETAIL' => $this->getDetailHTMLLink($item["DETAIL_URL"]),
+                    'INFO' => $this->getInfoHTMLLink($item["INFO_URL"], $item['INFO_COUNT']),
 				]
 			];
 		}
@@ -144,8 +172,19 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 	{
 		return str_replace('#ELEMENT_ID#', $id, $this->arParams['DETAIL_PAGE_URL']);
 	}
+
 	protected function getDetailHTMLLink(string $detail_url): string
 	{
 		return "<a href=\"" . $detail_url . "\">" . Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME') . "</a>";
 	}
+
+    protected function getInfoPageUrl(int $id): string
+    {
+        return str_replace('#ELEMENT_ID#', $id, $this->arParams['INFO_PAGE_URL']);
+    }
+
+    protected function getInfoHTMLLink(string $info_url, int $info_count): string
+    {
+        return "<a href=\"" . $info_url . "\">" . Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_INFO_VALUE', ['#COUNT#' => $info_count]) . "</a>";
+    }
 }
