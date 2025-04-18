@@ -11,6 +11,7 @@ use Bitrix\Main\UrlRewriter;
 use Bitrix\Main\SystemException;
 
 use Exam31\Ticket\SomeElementTable;
+use Exam31\Ticket\InfoTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -122,12 +123,38 @@ class exam31_ticket extends CModule
 		}
 
 		$dbConnection = Application::getConnection();
-		$entity = SomeElementTable::getEntity();
-		$tableName = SomeElementTable::getTableName();
-		if (!$dbConnection->isTableExists($tableName))
-		{
-			$entity->createDbTable();
-		}
+
+        $tables = [
+            SomeElementTable::class,
+            InfoTable::class,
+        ];
+
+        foreach ($tables as $table)
+        {
+            $tableName = $table::getTableName();
+
+            if (!$dbConnection->isTableExists($tableName))
+            {
+                $entity = $table::getEntity();
+                $entity->createDbTable();
+            }
+        }
+
+        for ($i = 1; $i <= 100; $i++) {
+            SomeElementTable::add([
+                'ACTIVE' => true,
+                'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime(),
+                'TITLE' => 'Название ' . $i,
+                'TEXT' => 'Описание ' . $i,
+            ]);
+        }
+
+        for ($i = 1; $i <= 20; $i++) {
+            InfoTable::add([
+                'TITLE' => 'Инфо ' . $i,
+                'ELEMENT_ID' => rand(1, 5),
+            ]);
+        }
 
 		return true;
 	}
@@ -141,11 +168,21 @@ class exam31_ticket extends CModule
 		}
 
 		$dbConnection = Application::getConnection();
-		$tableName = SomeElementTable::getTableName();
-		if ($dbConnection->isTableExists($tableName))
-		{
-			$dbConnection->dropTable($tableName);
-		}
+
+        $tables = [
+            SomeElementTable::class,
+            InfoTable::class,
+        ];
+
+        foreach ($tables as $table)
+        {
+            $tableName = $table::getTableName();
+
+            if ($dbConnection->isTableExists($tableName))
+            {
+                $dbConnection->dropTable($tableName);
+            }
+        }
 
 		return true;
 	}
@@ -227,4 +264,3 @@ class exam31_ticket extends CModule
 		);
 	}
 }
-
