@@ -11,6 +11,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
 
 use Exam31\Ticket\SomeElementTable;
+use Bitrix\Main\UI\Filter\Options;
 
 class ExamElementsListComponent extends CBitrixComponent implements Errorable
 {
@@ -58,8 +59,11 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 			return;
 		}
 
-		$this->arResult['ITEMS'] = $this->getSomeElementList();
-		$this->arResult['grid'] = $this->prepareGrid($this->arResult['ITEMS']);
+        $filter = $this->getFilter();
+        $items = $this->getSomeElementList($filter);
+
+		$this->arResult['ITEMS'] = $items;
+		$this->arResult['grid'] = $this->prepareGrid($items);
 
 		$this->includeComponentTemplate();
 
@@ -67,9 +71,27 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENTS_LIST_PAGE_TITLE'));
 	}
 
-    protected function getSomeElementList(): array
+    protected function getFilter(): array
     {
+        $filterId = 'ELEMENTS_LIST_FILTER';
+
+        $this->arResult['filterId'] = $filterId;
+
+        $filterOptions = new Options($filterId);
+
+        return $filterOptions->getFilter([]);
+    }
+
+    protected function getSomeElementList(array $filter = []): array
+    {
+        $queryFilter = [];
+
+        if (!empty($filter['TITLE'])) {
+            $queryFilter['%TITLE'] = $filter['TITLE'];
+        }
+
         $result = SomeElementTable::getList([
+            'filter' => $queryFilter,
             'select' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE', 'INFO_COUNT'],
             'runtime' => [
                 new \Bitrix\Main\Entity\ReferenceField(
@@ -100,11 +122,8 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
                 : null;
 
             $item['TITLE'] = htmlspecialcharsbx($item['TITLE']);
-
             $item['TEXT'] = htmlspecialcharsbx($item['TEXT']);
-
             $item['DETAIL_URL'] = $this->getDetailPageUrl($item['ID']);
-
             $item['INFO_URL'] = $this->getInfoPageUrl($item['ID']);
 
             $preparedItems[] = $item;
@@ -112,7 +131,6 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 
         return $preparedItems;
     }
-
 
 	protected function prepareGrid($items): array
 	{
