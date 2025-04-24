@@ -12,6 +12,7 @@ use Bitrix\Main\ErrorableImplementation;
 
 use Exam31\Ticket\SomeElementTable;
 use Bitrix\Main\UI\Filter\Options;
+use Bitrix\Main\UI\PageNavigation;
 
 class ExamElementsListComponent extends CBitrixComponent implements Errorable
 {
@@ -60,10 +61,12 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 		}
 
         $filter = $this->getFilter();
-        $items = $this->getSomeElementList($filter);
+        $nav = $this->getNav();
+
+        $items = $this->getSomeElementList($filter, $nav);
 
 		$this->arResult['ITEMS'] = $items;
-		$this->arResult['grid'] = $this->prepareGrid($items);
+		$this->arResult['grid'] = $this->prepareGrid($items, $nav);
 
 		$this->includeComponentTemplate();
 
@@ -82,7 +85,18 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
         return $filterOptions->getFilter([]);
     }
 
-    protected function getSomeElementList(array $filter = []): array
+    protected function getNav()
+    {
+        $nav = new PageNavigation('elements-list');
+
+        $nav->allowAllRecords(false)
+            ->setPageSize(20)
+            ->initFromUri();
+
+        return $nav;
+    }
+
+    protected function getSomeElementList(array $filter = [], PageNavigation $nav = null): array
     {
         $queryFilter = [];
 
@@ -90,7 +104,7 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
             $queryFilter['%TITLE'] = $filter['TITLE'];
         }
 
-        $result = SomeElementTable::getList([
+        $params = [
             'filter' => $queryFilter,
             'select' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE', 'INFO_COUNT'],
             'runtime' => [
@@ -106,9 +120,21 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
                     ['INFO.ID']
                 )
             ],
+            'count_total' => true,
             'group' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE'],
             'order' => ['ID' => 'ASC'],
-        ]);
+        ];
+
+        if ($nav) {
+            $params['limit'] = $nav->getLimit();
+            $params['offset'] = $nav->getOffset();
+        }
+
+        $result = SomeElementTable::getList($params);
+
+        if ($nav) {
+            $nav->setRecordCount($result->getCount());
+        }
 
         $preparedItems = [];
 
@@ -132,20 +158,23 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
         return $preparedItems;
     }
 
-	protected function prepareGrid($items): array
-	{
-		return [
-			'GRID_ID' => static::GRID_ID,
-			'COLUMNS' => $this->getGridColums(),
-			'ROWS' => $this->getGridRows($items),
-			'TOTAL_ROWS_COUNT' => count($items),
-			'SHOW_ROW_CHECKBOXES' => false,
-			'SHOW_SELECTED_COUNTER' => false,
-			'AJAX_MODE' => 'Y',
-			'AJAX_OPTION_JUMP' => 'N',
-			'AJAX_OPTION_HISTORY' => 'N',
-		];
-	}
+    protected function prepareGrid(array $items, PageNavigation $nav): array
+    {
+        return [
+            'GRID_ID' => static::GRID_ID,
+            'COLUMNS' => $this->getGridColums(),
+            'ROWS' => $this->getGridRows($items),
+            'TOTAL_ROWS_COUNT' => $nav->getRecordCount(),
+            'NAV_OBJECT' => $nav,
+            'SHOW_ROW_CHECKBOXES' => false,
+            'SHOW_SELECTED_COUNTER' => false,
+            'SHOW_TOTAL_COUNTER' => true,
+            'SHOW_PAGINATION' => true,
+            'AJAX_MODE' => 'Y',
+            'AJAX_OPTION_JUMP' => 'N',
+            'AJAX_OPTION_HISTORY' => 'N',
+        ];
+    }
 
 	protected function getGridColums(): array
 	{
