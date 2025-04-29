@@ -209,7 +209,17 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 					'ACTIVE' => $item["ACTIVE"],
 					'DETAIL' => $this->getDetailHTMLLink($item["DETAIL_URL"]),
                     'INFO' => $this->getInfoHTMLLink($item["INFO_URL"], $item['INFO_COUNT']),
-				]
+				],
+                'actions' => [
+                    [
+                        'TEXT' => Loc::getMessage('EXAM31_ELEMENTS_LIST_ACTION_DETAIL'),
+                        'ONCLICK' => "window.location.href='".$item["DETAIL_URL"]."'",
+                    ],
+                    [
+                        'TEXT' => Loc::getMessage('EXAM31_ELEMENTS_LIST_ACTION_INFO'),
+                        'ONCLICK' => "window.location.href='".$item["INFO_URL"]."'",
+                    ]
+                ]
 			];
 		}
 		return $rows;
