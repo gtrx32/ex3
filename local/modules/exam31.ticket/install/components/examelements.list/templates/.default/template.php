@@ -5,23 +5,20 @@
  * @var array $arParams
  * @var array $arResult
  */
+
+use \Bitrix\UI\Toolbar\Facade\Toolbar;
 ?>
 
-<?php
-$APPLICATION->IncludeComponent(
-    'bitrix:main.ui.filter',
-    '',
-    [
-        'FILTER_ID' => $arResult['filterId'],
-        'GRID_ID' => $arResult['grid']['GRID_ID'],
-        'FILTER' => [
-            ['id' => 'TITLE', 'name' => 'Заголовок', 'type' => 'string', 'default' => true],
-        ],
-        'ENABLE_LABEL' => true,
-        'ENABLE_LIVE_SEARCH' => true,
+<?
+Toolbar::addFilter([
+    'GRID_ID' => $arResult['grid']['GRID_ID'],
+    'FILTER_ID' => $arResult['filterId'],
+    'FILTER' => [
+        ['id' => 'TITLE', 'name' => 'Название', 'type' => 'string', 'default' => true],
     ],
-    $component
-);
+    'ENABLE_LABEL' => true,
+    'ENABLE_LIVE_SEARCH' => true,
+]);
 ?>
 
 <?
