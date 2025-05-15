@@ -11,21 +11,23 @@ class SomeElementTable extends Entity\DataManager
 	{
 		return 'exam31_ticket_someelement';
 	}
+
 	static function getMap(): array
 	{
-		return array(
-			(new Entity\IntegerField('ID'))
-				->configurePrimary()
-				->configureAutocomplete(),
-			(new Entity\BooleanField('ACTIVE'))
-				->configureRequired(),
-			(new Entity\DatetimeField('DATE_MODIFY'))
-				->configureRequired()
-				->configureDefaultValue(new DateTime()),
-			(new Entity\StringField('TITLE'))
-				->configureRequired(),
-			new Entity\TextField('TEXT'),
-		);
+        return [
+            (new Entity\IntegerField('ID'))
+                ->configurePrimary()
+                ->configureAutocomplete(),
+            (new Entity\DatetimeField('DATE_MODIFY'))
+                ->configureRequired()
+                ->configureDefaultValue(new DateTime()),
+            (new Entity\BooleanField('ACTIVE'))
+                ->configureRequired(),
+            (new Entity\StringField('TITLE'))
+                ->configureRequired()
+                ->configureSize(250),
+            new Entity\TextField('TEXT'),
+        ];
 	}
 
 	static function getFieldsDisplayLabel(): array
