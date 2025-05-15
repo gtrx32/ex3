@@ -13,6 +13,8 @@ use Bitrix\Main\ErrorableImplementation;
 use Exam31\Ticket\SomeElementTable;
 use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\UI\Buttons\CreateButton;
+use Bitrix\UI\Buttons\Color;
 
 class ExamElementsListComponent extends CBitrixComponent implements Errorable
 {
@@ -66,6 +68,8 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 
 		$this->arResult['ITEMS'] = $items;
 		$this->arResult['grid'] = $this->prepareGrid($items, $navigation);
+        $this->arResult['filter'] = $this->prepareFilter();
+        $this->arResult['toolbar'] = $this->prepareToolbar();
 
 		$this->includeComponentTemplate();
 
@@ -75,8 +79,6 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 
     protected function getFilter(): array
     {
-        $this->arResult['filterId'] = self::GRID_ID;
-
         $filterOptions = new Options(self::GRID_ID);
 
         return $filterOptions->getFilter([]);
@@ -90,6 +92,31 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
         $navigation->initFromUri();
 
         return $navigation;
+    }
+
+    protected function prepareToolbar(): array
+    {
+        return [
+            'buttons' => [
+                new CreateButton([
+                    'text' => Loc::getMessage('EXAM31_ELEMENTS_ADD_BUTTON_LABEL'),
+                    'link' => CComponentEngine::makePathFromTemplate($this->arParams['DETAIL_PAGE_URL'], ['ELEMENT_ID' => 0])
+                ])
+            ]
+        ];
+    }
+
+    protected function prepareFilter(): array
+    {
+        return [
+            'GRID_ID' => self::GRID_ID,
+            'FILTER_ID' => self::GRID_ID,
+            'FILTER' => [
+                ['id' => 'TITLE', 'name' => Loc::getMessage('EXAM31_ELEMENTS_NAME_FILTER_NAME'), 'type' => 'string', 'default' => true],
+            ],
+            'ENABLE_LABEL' => true,
+            'ENABLE_LIVE_SEARCH' => true,
+        ];
     }
 
 	protected function getSomeElementList(array $filter = [], PageNavigation $navigation = null): array
