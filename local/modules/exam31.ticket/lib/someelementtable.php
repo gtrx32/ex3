@@ -27,6 +27,17 @@ class SomeElementTable extends Entity\DataManager
                 ->configureRequired()
                 ->configureSize(250),
             new Entity\TextField('TEXT'),
+            new Entity\ReferenceField(
+                'INFO',
+                InfoTable::class,
+                ['=this.ID' => 'ref.ELEMENT_ID'],
+                ['join_type' => 'LEFT']
+            ),
+            new Entity\ExpressionField(
+                'INFO_COUNT',
+                'COUNT(%s)',
+                ['INFO.ID']
+            ),
         ];
 	}
 

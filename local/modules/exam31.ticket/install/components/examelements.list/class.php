@@ -11,6 +11,8 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
 
 use Exam31\Ticket\SomeElementTable;
+use Bitrix\Main\UI\Filter\Options;
+use Bitrix\Main\UI\PageNavigation;
 
 class ExamElementsListComponent extends CBitrixComponent implements Errorable
 {
@@ -58,8 +60,12 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 			return;
 		}
 
-		$this->arResult['ITEMS'] = $this->getSomeElementList();
-		$this->arResult['grid'] = $this->prepareGrid($this->arResult['ITEMS']);
+        $filter = $this->getFilter();
+        $navigation = $this->getNavigation();
+        $items = $this->getSomeElementList($filter, $navigation);
+
+		$this->arResult['ITEMS'] = $items;
+		$this->arResult['grid'] = $this->prepareGrid($items, $navigation);
 
 		$this->includeComponentTemplate();
 
@@ -67,36 +73,95 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENTS_LIST_PAGE_TITLE'));
 	}
 
-	protected function getSomeElementList(): array
-	{
-		//Демо-данные для грида
-		$items = [
-			['ID' => 1, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE 1', 'TEXT' => 'TEXT 1', 'ACTIVE' => 1],
-			['ID' => 2, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE <script>alert("2 !!!")</script>', 'TEXT' => 'TEXT 2', 'ACTIVE' => 1],
-			['ID' => 3, 'DATE_MODIFY' => new DateTime(), 'TITLE' => 'TITLE 3', 'TEXT' => 'TEXT 3', 'ACTIVE' => 0],
-		];
-		$preparedItems = [];
-		foreach ($items as $item)
-		{
-			$item['DETAIL_URL'] = $this->getDetailPageUrl($item['ID']);
-			$item['DATE_MODIFY'] = $item['DATE_MODIFY'] instanceof DateTime
-				? $item['DATE_MODIFY']->toString()
-				: null;
+    protected function getFilter(): array
+    {
+        $this->arResult['filterId'] = self::GRID_ID;
 
-			$preparedItems[] = $item;
-		}
-		return $preparedItems;
+        $filterOptions = new Options(self::GRID_ID);
+
+        return $filterOptions->getFilter([]);
+    }
+
+    protected function getNavigation(): PageNavigation
+    {
+        $navigation = new PageNavigation('n');
+
+        $navigation->setPageSize(self::DEFAULT_PAGE_SIZE);
+        $navigation->initFromUri();
+
+        return $navigation;
+    }
+
+	protected function getSomeElementList(array $filter = [], PageNavigation $navigation = null): array
+	{
+        $queryFilter = [];
+
+        if (!empty($filter['TITLE'])) {
+            $queryFilter['%TITLE'] = $filter['TITLE'];
+        }
+
+        $params = $this->prepareParams($queryFilter, $navigation);
+
+        $result = SomeElementTable::getList($params);
+
+        $navigation->setRecordCount($result->getCount());
+
+        $items = [];
+
+        while ($item = $result->fetch())
+        {
+            $items[] = $this->prepareItem($item);
+        }
+
+        return $items;
 	}
 
-	protected function prepareGrid($items): array
+    protected function prepareParams(array $filter, PageNavigation $navigation): array
+    {
+        $params = [
+            'filter' => $filter,
+            'select' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE', 'INFO_COUNT'],
+            'count_total' => true,
+            'group' => ['ID', 'DATE_MODIFY', 'TITLE', 'TEXT', 'ACTIVE'],
+            'order' => ['ID' => 'ASC'],
+        ];
+
+        $params['limit'] = $navigation->getLimit();
+        $params['offset'] = $navigation->getOffset();
+
+        return $params;
+    }
+
+    protected function prepareItem(array $item): array
+    {
+        return [
+            'ID' => (int)$item['ID'],
+            'ACTIVE' => $item['ACTIVE'] == 1
+                ? Loc::getMessage('EXAM31_ELEMENTS_ACTIVE_VALUE_YES')
+                : Loc::getMessage('EXAM31_ELEMENTS_ACTIVE_VALUE_NO'),
+            'DATE_MODIFY' => $item['DATE_MODIFY'] instanceof DateTime
+                ? $item['DATE_MODIFY']->toString()
+                : null,
+            'TITLE' => htmlspecialcharsbx($item['TITLE']),
+            'TEXT' => htmlspecialcharsbx($item['TEXT']),
+            'INFO_COUNT' => (int)($item['INFO_COUNT'] ?? 0),
+            'DETAIL_URL' => $this->getDetailPageUrl($item['ID']),
+            'INFO_URL' => $this->getInfoPageUrl($item['ID'])
+        ];
+    }
+
+	protected function prepareGrid(array $items, PageNavigation $navigation): array
 	{
 		return [
 			'GRID_ID' => static::GRID_ID,
 			'COLUMNS' => $this->getGridColums(),
 			'ROWS' => $this->getGridRows($items),
-			'TOTAL_ROWS_COUNT' => count($items),
+            'NAV_OBJECT' => $navigation,
+            'TOTAL_ROWS_COUNT' => $navigation->getRecordCount(),
 			'SHOW_ROW_CHECKBOXES' => false,
 			'SHOW_SELECTED_COUNTER' => false,
+            'SHOW_TOTAL_COUNTER' => true,
+            'SHOW_PAGINATION' => true,
 			'AJAX_MODE' => 'Y',
 			'AJAX_OPTION_JUMP' => 'N',
 			'AJAX_OPTION_HISTORY' => 'N',
@@ -112,7 +177,8 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 			['id' => 'DATE_MODIFY', 'default' => true, 'name' => $fieldsLabel['DATE_MODIFY'] ?? 'DATE_MODIFY'],
 			['id' => 'TITLE', 'default' => true, 'name' => $fieldsLabel['TITLE'] ?? 'TITLE'],
 			['id' => 'TEXT', 'default' => true, 'name' => $fieldsLabel['TEXT'] ?? 'TEXT'],
-			['id' => 'DETAIL', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME')],
+			['id' => 'DETAIL', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRID_COLUMN_DETAIL_NAME')],
+            ['id' => 'INFO', 'default' => true, 'name' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRID_COLUMN_INFO_NAME')],
 		];
 	}
 	protected function getGridRows(array $items): array
@@ -123,6 +189,7 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 		}
 
 		$rows = [];
+
 		foreach ($items as $key => $item)
 		{
 			$rows[$key] = [
@@ -134,18 +201,41 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 					'TEXT' => $item["TEXT"],
 					'ACTIVE' => $item["ACTIVE"],
 					'DETAIL' => $this->getDetailHTMLLink($item["DETAIL_URL"]),
-				]
+                    'INFO' => $this->getInfoHTMLLink($item["INFO_URL"], $item['INFO_COUNT']),
+                ],
+                'actions' => [
+                    [
+                        'TEXT' => Loc::getMessage('EXAM31_ELEMENTS_LIST_ACTION_DETAIL'),
+                        'ONCLICK' => "window.location.href='".$item["DETAIL_URL"]."'",
+                    ],
+                    [
+                        'TEXT' => Loc::getMessage('EXAM31_ELEMENTS_LIST_ACTION_INFO'),
+                        'ONCLICK' => "window.location.href='".$item["INFO_URL"]."'",
+                    ]
+                ]
 			];
 		}
+
 		return $rows;
 	}
 
-	protected function getDetailPageUrl(int $id): string
-	{
-		return str_replace('#ELEMENT_ID#', $id, $this->arParams['DETAIL_PAGE_URL']);
-	}
-	protected function getDetailHTMLLink(string $detail_url): string
-	{
-		return "<a href=\"" . $detail_url . "\">" . Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME') . "</a>";
-	}
+    protected function getDetailPageUrl(int $id): string
+    {
+        return str_replace('#ELEMENT_ID#', $id, $this->arParams['DETAIL_PAGE_URL']);
+    }
+
+    protected function getDetailHTMLLink(string $detail_url): string
+    {
+        return "<a href=\"" . $detail_url . "\">" . Loc::getMessage('EXAM31_ELEMENTS_LIST_GRID_COLUMN_DETAIL_NAME') . "</a>";
+    }
+
+    protected function getInfoPageUrl(int $id): string
+    {
+        return str_replace('#ELEMENT_ID#', $id, $this->arParams['INFO_PAGE_URL']);
+    }
+
+    protected function getInfoHTMLLink(string $info_url, int $info_count): string
+    {
+        return "<a href=\"" . $info_url . "\">" . Loc::getMessage('EXAM31_ELEMENTS_LIST_GRID_COLUMN_INFO_VALUE', ['#COUNT#' => $info_count]) . "</a>";
+    }
 }
