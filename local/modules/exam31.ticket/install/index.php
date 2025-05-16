@@ -197,6 +197,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->registerEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\SidePanelJsInjector',
+            'injectRules'
+        );
 	}
 
 	public function UnInstallEvents(): void
@@ -210,6 +218,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\SidePanelJsInjector',
+            'injectRules'
+        );
 	}
 
 	public function InstallFiles(): void
