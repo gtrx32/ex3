@@ -21,6 +21,7 @@ $APPLICATION->IncludeComponent(
             'DETAIL_PAGE_URL' => $arResult['DETAIL_PAGE_URL'],
             'LIST_PAGE_URL' => $arResult['LIST_PAGE_URL'],
             'INFO_PAGE_URL' => $arResult['INFO_PAGE_URL'],
+            'PAGE_TITLE' => 'Детальная информация',
         ],
         'RELOAD_GRID_AFTER_SAVE' => 'Y',
         'USE_UI_TOOLBAR' => 'Y',

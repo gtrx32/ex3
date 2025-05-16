@@ -25,7 +25,6 @@ class SidePanelJsInjector
                                 {
                                     condition: [new RegExp('/exam31/detail/[0-9]+/')],
                                     options: {
-                                        cacheable: false,
                                         label: {
                                             text: '{$labelText}'
                                         }

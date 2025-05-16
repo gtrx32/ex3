@@ -68,7 +68,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 		$this->includeComponentTemplate();
 
 		global $APPLICATION;
-		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
+		$APPLICATION->SetTitle($this->elementId ? Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->elementId]) : Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE_NEW'));
 	}
 
 	protected function PrepareForm($element): array
@@ -170,7 +170,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 
 		//Демо-данные полей для формы
 		$element = [
-			'ID' => 2,
+			'ID' => $this->elementId,
 			'DATE_MODIFY' => (new DateTime())->toString(),
 			'TITLE' => 'TITLE 2',
 			'TEXT' => 'TEXT 2',
