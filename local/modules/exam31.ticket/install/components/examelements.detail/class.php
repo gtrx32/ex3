@@ -161,56 +161,76 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 		];
 	}
 
-	protected function getEntityData(): array
-	{
-		if (!$this->elementId)
-		{
-			return [];
-		}
+    protected function getEntityData(): array
+    {
+        if (!$this->elementId) {
+            return [];
+        }
 
-		//Демо-данные полей для формы
-		$element = [
-			'ID' => $this->elementId,
-			'DATE_MODIFY' => (new DateTime())->toString(),
-			'TITLE' => 'TITLE 2',
-			'TEXT' => 'TEXT 2',
-			'ACTIVE' => 'Y'
-		];
+        try {
+            $element = SomeElementTable::getByPrimary($this->elementId)->fetch();
 
-		return $element;
-	}
+            if (!$element) {
+                $this->errorCollection->setError(
+                    new Error('Элемент не найден')
+                );
+                return [];
+            }
 
-	//Ajax
-	public function saveAction(array $data): AjaxJson
-	{
-		//Заглушка для отработки ajax
-		$element = [];
-		$isUdpateSuccess = true;
-		try
-		{
-			if ($isUdpateSuccess)
-			{
-				$element['ID'] = '1';
-			}
-			else
-			{
-				throw new SystemException(Loc::getMessage('EXAM31_ELEMENT_DETAIL_UPDATE_ERROR'));
-			}
+            return $element;
 
-			return AjaxJson::createSuccess([
-				'ENTITY_ID' => $element['ID'],
-				//REDIRECT_URL необходим для корректной работы формы в слайдере
-				//'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
-			]);
-		}
-		catch (SystemException $exception)
-		{
-			$this->errorCollection->setError(new Error($exception->getMessage()));
-			return AjaxJson::createError($this->errorCollection);
-		}
-	}
+        } catch (\Exception $e) {
+            $this->errorCollection->setError(new Error($e->getMessage()));
+            return [];
+        }
+    }
 
-	public function configureActions(): array
+    public function saveAction(array $data): AjaxJson
+    {
+        try {
+            $isNew = empty($this->elementId);
+
+            if ($isNew) {
+                $fields = [
+                    'DATE_MODIFY' => new DateTime(),
+                    'ACTIVE' => ($data['ACTIVE'] === 'Y') ? 1 : 0,
+                    'TITLE' => $data['TITLE'] ?? '',
+                    'TEXT' => $data['TEXT'] ?? '',
+                ];
+                $result = SomeElementTable::add($fields);
+            } else {
+                $element = SomeElementTable::getByPrimary($this->elementId)->fetch();
+
+                $element['DATE_MODIFY'] = new DateTime();
+                $element['ACTIVE'] = ($data['ACTIVE'] === 'Y') ? 1 : 0;
+                $element['TITLE'] = $data['TITLE'] ?? $element['TITLE'];
+                $element['TEXT'] = $data['TEXT'] ?? $element['TEXT'];
+
+                $result = SomeElementTable::update($this->elementId, $element);
+            }
+
+            if (!$result->isSuccess()) {
+                foreach ($result->getErrors() as $error) {
+                    $this->errorCollection->setError(new Error($error->getMessage()));
+                }
+                return AjaxJson::createError($this->errorCollection);
+            }
+
+            $elementId = $isNew ? $result->getId() : $this->elementId;
+
+            return AjaxJson::createSuccess([
+                'ENTITY_ID' => $elementId,
+                'REDIRECT_URL' => $this->getDetailPageUrl($elementId),
+            ]);
+
+        } catch (\Exception $e) {
+            $this->errorCollection->setError(new Error($e->getMessage()));
+            return AjaxJson::createError($this->errorCollection);
+        }
+    }
+
+
+    public function configureActions(): array
 	{
 		return [];
 	}

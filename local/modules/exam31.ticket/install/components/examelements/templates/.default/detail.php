@@ -22,7 +22,7 @@ $APPLICATION->IncludeComponent(
             'LIST_PAGE_URL' => $arResult['LIST_PAGE_URL'],
             'INFO_PAGE_URL' => $arResult['INFO_PAGE_URL'],
         ],
-        'RELOAD_GRID_AFTER_SAVE' => 'Y',
+        'RELOAD_GRID_AFTER_SAVE' => true,
         'USE_UI_TOOLBAR' => 'Y',
         'PAGE_MODE' => false,
         'PAGE_MODE_OFF_BACK_URL' => '/exam31/list/',
