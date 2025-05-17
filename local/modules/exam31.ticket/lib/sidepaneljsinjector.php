@@ -29,6 +29,14 @@ class SidePanelJsInjector
                                             text: '{$labelText}'
                                         }
                                     }
+                                },
+                                {
+                                    condition: [new RegExp('/exam31/info/[0-9]+/')],
+                                    options: {
+                                        label: {
+                                            text: 'Инфо'
+                                        }
+                                    }
                                 }
                             ]
                         });

@@ -18,6 +18,11 @@ $arComponentParameters = [
 				'DEFAULT' => '#ID#/',
 				'VARIABLES' => ['ID'],
 			],
+            'info' => [
+                'NAME' => Loc::getMessage('EXAM31_ELEMENTS_SEF_MODE_INFO_PARAMETER_NAME'),
+                'DEFAULT' => '#ID#/',
+                'VARIABLES' => ['ID'],
+            ],
 		],
 	],
 ];
