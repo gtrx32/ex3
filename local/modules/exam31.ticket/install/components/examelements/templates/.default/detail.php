@@ -25,6 +25,6 @@ $APPLICATION->IncludeComponent(
         'RELOAD_GRID_AFTER_SAVE' => true,
         'USE_UI_TOOLBAR' => 'Y',
         'PAGE_MODE' => false,
-        'PAGE_MODE_OFF_BACK_URL' => '/exam31/list/',
+        'PAGE_MODE_OFF_BACK_URL' => $arResult['FOLDER'],
     ]
 );

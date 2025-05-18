@@ -8,7 +8,9 @@ class SidePanelJsInjector
 {
     public static function injectRules()
     {
-        $labelText = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_LABEL');
+        $detailTitle = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_DETAIL_TITLE');
+        $infoTitle = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_INFO_TITLE');
+        $infoTitleBgColor = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_INFO_TITLE_BG_COLOR');
 
         $asset = Asset::getInstance();
 
@@ -26,7 +28,7 @@ class SidePanelJsInjector
                                     condition: [new RegExp('/exam31/detail/[0-9]+/')],
                                     options: {
                                         label: {
-                                            text: '{$labelText}'
+                                            text: '{$detailTitle}'
                                         }
                                     }
                                 },
@@ -34,7 +36,8 @@ class SidePanelJsInjector
                                     condition: [new RegExp('/exam31/info/[0-9]+/')],
                                     options: {
                                         label: {
-                                            text: 'Инфо'
+                                            text: '{$infoTitle}',
+                                            bgColor: '{$infoTitleBgColor}'
                                         }
                                     }
                                 }
