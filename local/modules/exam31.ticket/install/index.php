@@ -213,11 +213,27 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\AdminLinkInjector',
             'addAdminLink'
         );
+
+        $eventManager->registerEventHandler(
+            'crm',
+            'OnBeforeCrmDealUpdate',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\CrmDealFieldValidator',
+            'validateProtectedFieldChange'
+        );
 	}
 
 	public function UnInstallEvents(): void
 	{
 		$eventManager = EventManager::getInstance();
+
+        $eventManager->unRegisterEventHandler(
+            'crm',
+            'OnBeforeCrmDealUpdate',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\CrmDealFieldValidator',
+            'validateProtectedFieldChange'
+        );
 
         $eventManager->unRegisterEventHandler(
             'main',
