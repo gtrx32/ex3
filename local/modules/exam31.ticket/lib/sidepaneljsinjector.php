@@ -8,9 +8,9 @@ class SidePanelJsInjector
 {
     public static function injectRules()
     {
-        $detailTitle = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_DETAIL_TITLE');
-        $infoTitle = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_INFO_TITLE');
-        $infoTitleBgColor = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_INFO_TITLE_BG_COLOR');
+        $detailTitle = Loc::getMessage('EXAM31_TICKET_SIDEPANEL_DETAIL_TITLE');
+        $infoTitle = Loc::getMessage('EXAM31_TICKET_SIDEPANEL_INFO_TITLE');
+        $infoTitleBgColor = Loc::getMessage('EXAM31_TICKET_SIDEPANEL_INFO_TITLE_BG_COLOR');
 
         $asset = Asset::getInstance();
 
