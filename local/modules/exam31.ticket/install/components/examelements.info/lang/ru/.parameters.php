@@ -1,0 +1,2 @@
+<?php
+$MESS['EXAM31_ELEMENTS_INFO_EXAM_ELEMENT_ID'] = 'ID элемента';
