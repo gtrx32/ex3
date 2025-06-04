@@ -402,6 +402,7 @@ $mainPage = new \Bitrix\Intranet\Site\FirstPage\MainFirstPage();
 			<?endif?>
 		</div>
 	</div>
+    <?php $APPLICATION->ShowViewContent("exam31_ticket_admin_link"); ?>
 	<div class="menu-btn-arrow-up">
 		<span class="menu-btn-arrow-up-icon"></span>
 	</div>

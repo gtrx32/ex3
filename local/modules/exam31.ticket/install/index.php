@@ -205,19 +205,27 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\SidePanelJsInjector',
             'injectRules'
         );
+
+        $eventManager->registerEventHandler(
+            'main',
+            'OnBeforeProlog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\AdminLinkInjector',
+            'addAdminLink'
+        );
 	}
 
 	public function UnInstallEvents(): void
 	{
 		$eventManager = EventManager::getInstance();
 
-		$eventManager->unRegisterEventHandler(
-			'main',
-			'OnUserTypeBuildList',
-			$this->MODULE_ID,
-			'Exam31\\Ticket\\ExamFieldType',
-			'getUserTypeDescription'
-		);
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnBeforeProlog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\AdminLinkInjector',
+            'addAdminLink'
+        );
 
         $eventManager->unRegisterEventHandler(
             'main',
@@ -226,6 +234,14 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\SidePanelJsInjector',
             'injectRules'
         );
+
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnUserTypeBuildList',
+			$this->MODULE_ID,
+			'Exam31\\Ticket\\ExamFieldType',
+			'getUserTypeDescription'
+		);
 	}
 
 	public function InstallFiles(): void

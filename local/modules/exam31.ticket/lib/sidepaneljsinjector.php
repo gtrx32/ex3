@@ -8,7 +8,7 @@ class SidePanelJsInjector
 {
     public static function injectRules()
     {
-        $labelText = Loc::getMessage('EXAM31_ELEMENTS_SIDEPANEL_LABEL');
+        $labelText = Loc::getMessage('EXAM31_TICKET_SIDEPANEL_LABEL');
 
         $asset = Asset::getInstance();
 
