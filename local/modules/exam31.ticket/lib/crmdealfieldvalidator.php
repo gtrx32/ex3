@@ -4,6 +4,7 @@ namespace Exam31\Ticket;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\DealTable;
+use Bitrix\Crm\Service\Container;
 
 class CrmDealFieldValidator
 {
@@ -19,10 +20,8 @@ class CrmDealFieldValidator
             return true;
         }
 
-        $deal = DealTable::getList([
-            'filter' => ['=ID' => $arFields['ID']],
-            'select' => [$protectedFieldCode],
-        ])->fetch();
+        $dealFactory = Container::getInstance()->getFactory(\CCrmOwnerType::Deal);
+        $deal = $dealFactory->getItem($arFields['ID']);
 
         if (!$deal) {
             return true;
