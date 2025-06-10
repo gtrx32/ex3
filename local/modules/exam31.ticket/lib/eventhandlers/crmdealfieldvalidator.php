@@ -37,7 +37,7 @@ class CrmDealFieldValidator
         $isAdmin = in_array(1, $userGroups);
 
         if (!$isAdmin) {
-            $arFields['RESULT_MESSAGE'] = 'Вы не можете изменить значение поля «Защищенное поле»';
+            $arFields['RESULT_MESSAGE'] = Loc::getMessage('EXAM31_TICKET_CANCEL_UPDATE_PROTECTED_FIELD');
             return false;
         }
 
