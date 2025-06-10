@@ -14,17 +14,22 @@ class CBPExamTicketActivity extends BaseActivity
 	{
 		parent::__construct($name);
 
-		$this->arProperties = [
-			'ID' => 0,
+        $this->arProperties = [
+            'ID' => 0,
+            'DATE_MODIFY' => null,
+            'ACTIVE' => null,
+            'TITLE' => null,
+            'TEXT' => null,
+            'INFO_COUNT' => null
+        ];
 
-			//return
-			'DEMO_VALUE' => null,
-		];
-
-		$this->SetPropertiesTypes([
-			'DEMO_VALUE' => ['Type' => FieldType::STRING],
-		]);
-
+        $this->SetPropertiesTypes([
+            'DATE_MODIFY' => ['Type' => FieldType::STRING],
+            'ACTIVE' => ['Type' => FieldType::STRING],
+            'TITLE' => ['Type' => FieldType::STRING],
+            'TEXT' => ['Type' => FieldType::STRING],
+            'INFO_COUNT' => ['Type' => FieldType::STRING]
+        ]);
 	}
 
 	protected static function getFileName(): string
@@ -36,51 +41,71 @@ class CBPExamTicketActivity extends BaseActivity
 	{
 		$errors = parent::internalExecute();
 
-		/*
-		/Демо
-		*/
-		$elementId = (int) $this->preparedProperties["ID"];
-		if($elementId < 100)
+        $elementId = (int)$this->preparedProperties["ID"];
+
+		if($elementId > 0)
 		{
-			//Значения найдены
-			$this->preparedProperties['DEMO_VALUE'] = HtmlFilter::encode('DEMO_VALUE');
+            $elementData = \Exam31\Ticket\SomeElementTable::getList([
+                'filter' => ['ID' => $elementId],
+                'select' => ['*', 'INFO_COUNT']
+            ])->fetch();
+
+            if ($elementData) {
+                $this->preparedProperties['DATE_MODIFY'] = $elementData['DATE_MODIFY']
+                    ? (string)$elementData['DATE_MODIFY']->format('d.m.Y H:i:s')
+                    : '';
+                $this->preparedProperties['ACTIVE'] = $elementData['ACTIVE'] == '1' ? 'Y' : 'N';
+                $this->preparedProperties['TITLE'] = HtmlFilter::encode($elementData['TITLE']);
+                $this->preparedProperties['TEXT'] = HtmlFilter::encode($elementData['TEXT']);
+                $this->preparedProperties['INFO_COUNT'] = isset($elementData['INFO_COUNT'])
+                    ? (string)$elementData['INFO_COUNT']
+                    : '0';
+
+                $this->log(
+                    Loc::getMessage('EXAM31_TICKET_ACTIVITY_LOG_FOUND', ['#ID#' => $elementId])
+                );
+            }
+            else {
+                $this->preparedProperties['ID'] = 0;
+                $this->preparedProperties['DATE_MODIFY'] = '';
+                $this->preparedProperties['ACTIVE'] = '';
+                $this->preparedProperties['TITLE'] = '';
+                $this->preparedProperties['TEXT'] = '';
+                $this->preparedProperties['INFO_COUNT'] = '';
+
+                $this->log(
+                    Loc::getMessage('EXAM31_TICKET_ACTIVITY_LOG_NOT_FOUND', ['#ID#' => $elementId])
+                );
+            }
 		}
 		else
 		{
-			//Если нет данных, отдаем пустые значения
-			$this->preparedProperties['ID'] = 0;
-			$this->preparedProperties['DEMO_VALUE'] = '';
+            $this->preparedProperties['ID'] = 0;
+            $this->preparedProperties['DATE_MODIFY'] = '';
+            $this->preparedProperties['ACTIVE'] = '';
+            $this->preparedProperties['TITLE'] = '';
+            $this->preparedProperties['TEXT'] = '';
+            $this->preparedProperties['INFO_COUNT'] = '';
 
-			//Пишем в журнал выполнения БП что данные не нашли
-			$this->log(
-				Loc::getMessage(
-					'EXAM31_TICKET_ACTIVITY_LOG_TEXT_N',
-					[
-						'#ID#' => $elementId,
-					]
-				)
-			);
+            $this->log(
+                Loc::getMessage('EXAM31_TICKET_ACTIVITY_LOG_INVALID_ID', ['#ID#' => $elementId])
+            );
 		}
-		/*
-		*
-		*/
-		
+
 		return $errors;
 	}
 
 	public static function getPropertiesDialogMap(?PropertiesDialog $dialog = null): array
 	{
-		$map = [
-			'ID' => [
-				'Name' => 'ID',
-				'FieldName' => 'ID',
-				'Type' => FieldType::INT,
-				'Required' => true,
-				'Default' => '',
-				'Options' => [],
-			],
-		];
-		
-		return $map;
+        return [
+            'ID' => [
+                'Name' => 'ID',
+                'FieldName' => 'ID',
+                'Type' => FieldType::INT,
+                'Required' => true,
+                'Default' => '',
+                'Options' => [],
+            ],
+        ];
 	}
 }
