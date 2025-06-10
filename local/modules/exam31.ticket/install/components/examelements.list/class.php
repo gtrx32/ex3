@@ -10,7 +10,7 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
 
-use Exam31\Ticket\SomeElementTable;
+use Exam31\Ticket\Entities\SomeElementTable;
 use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\UI\Buttons\CreateButton;

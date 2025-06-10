@@ -1,6 +1,6 @@
 <?php
 
-namespace Exam31\Ticket;
+namespace Exam31\Ticket\EventHandlers;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\DealTable;

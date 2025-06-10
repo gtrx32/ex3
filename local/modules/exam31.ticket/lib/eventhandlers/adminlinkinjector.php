@@ -1,11 +1,11 @@
 <?php
-namespace Exam31\Ticket;
+namespace Exam31\Ticket\EventHandlers;
 
 use Bitrix\Main\Localization\Loc;
 
 class AdminLinkInjector
 {
-    public static function addAdminLink(): void
+    public static function injectAdminLink(): void
     {
         global $USER, $APPLICATION;
 

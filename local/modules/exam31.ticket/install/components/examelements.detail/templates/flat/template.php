@@ -2,7 +2,9 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Diag\Debug;
-\Bitrix\Main\UI\Extension::load('ui.sidepanel-content');
+use Bitrix\Main\UI\Extension;
+
+Extension::load('ui.sidepanel-content');
 
 /**
  * @var array $arParams

@@ -1,5 +1,5 @@
 <?php
-namespace Exam31\Ticket;
+namespace Exam31\Ticket\FieldTypes;
 
 use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Main\Localization\Loc;

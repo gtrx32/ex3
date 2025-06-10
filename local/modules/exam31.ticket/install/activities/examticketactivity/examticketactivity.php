@@ -7,6 +7,7 @@ use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 use Bitrix\Main\Text\HtmlFilter;
+use Exam31\Ticket\Entities\SomeElementTable;
 
 class CBPExamTicketActivity extends BaseActivity
 {
@@ -45,7 +46,7 @@ class CBPExamTicketActivity extends BaseActivity
 
 		if($elementId > 0)
 		{
-            $elementData = \Exam31\Ticket\SomeElementTable::getList([
+            $elementData = SomeElementTable::getList([
                 'filter' => ['ID' => $elementId],
                 'select' => ['*', 'INFO_COUNT']
             ])->fetch();

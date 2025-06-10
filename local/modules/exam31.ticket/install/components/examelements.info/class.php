@@ -9,7 +9,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\UI\Extension;
 
-use Exam31\Ticket\InfoTable;
+use Exam31\Ticket\Entities\InfoTable;
 
 class ExamElementsInfoComponent extends CBitrixComponent implements Controllerable, Errorable
 {

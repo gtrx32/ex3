@@ -10,8 +10,8 @@ use Bitrix\Main\EventManager;
 use Bitrix\Main\UrlRewriter;
 use Bitrix\Main\SystemException;
 
-use Exam31\Ticket\SomeElementTable;
-use Exam31\Ticket\InfoTable;
+use Exam31\Ticket\Entities\SomeElementTable;
+use Exam31\Ticket\Entities\InfoTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -194,7 +194,7 @@ class exam31_ticket extends CModule
 			'main',
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
-			'Exam31\\Ticket\\ExamFieldType',
+			'Exam31\\Ticket\\FieldTypes\\ExamFieldType',
 			'getUserTypeDescription'
 		);
 
@@ -202,7 +202,7 @@ class exam31_ticket extends CModule
             'main',
             'OnEpilog',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\SidePanelJsInjector',
+            'Exam31\\Ticket\\EventHandlers\\SidePanelJsInjector',
             'injectRules'
         );
 
@@ -210,15 +210,15 @@ class exam31_ticket extends CModule
             'main',
             'OnBeforeProlog',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\AdminLinkInjector',
-            'addAdminLink'
+            'Exam31\\Ticket\\EventHandlers\\AdminLinkInjector',
+            'injectAdminLink'
         );
 
         $eventManager->registerEventHandler(
             'crm',
             'OnBeforeCrmDealUpdate',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\CrmDealFieldValidator',
+            'Exam31\\Ticket\\EventHandlers\\CrmDealFieldValidator',
             'validateProtectedFieldChange'
         );
 	}
@@ -231,7 +231,7 @@ class exam31_ticket extends CModule
             'crm',
             'OnBeforeCrmDealUpdate',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\CrmDealFieldValidator',
+            'Exam31\\Ticket\\EventHandlers\\CrmDealFieldValidator',
             'validateProtectedFieldChange'
         );
 
@@ -239,15 +239,15 @@ class exam31_ticket extends CModule
             'main',
             'OnBeforeProlog',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\AdminLinkInjector',
-            'addAdminLink'
+            'Exam31\\Ticket\\EventHandlers\\AdminLinkInjector',
+            'injectAdminLink'
         );
 
         $eventManager->unRegisterEventHandler(
             'main',
             'OnEpilog',
             $this->MODULE_ID,
-            'Exam31\\Ticket\\SidePanelJsInjector',
+            'Exam31\\Ticket\\EventHandlers\\SidePanelJsInjector',
             'injectRules'
         );
 
@@ -255,7 +255,7 @@ class exam31_ticket extends CModule
 			'main',
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
-			'Exam31\\Ticket\\ExamFieldType',
+			'Exam31\\Ticket\\FieldTypes\\ExamFieldType',
 			'getUserTypeDescription'
 		);
 	}

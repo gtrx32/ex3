@@ -1,10 +1,11 @@
 <?php
 defined('B_PROLOG_INCLUDED') || die;
 
-use Exam31\Ticket\ExamFieldType;
 use Bitrix\Main\Component\BaseUfComponent;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\HtmlFilter;
+use Exam31\Ticket\FieldTypes\ExamFieldType;
+use Exam31\Ticket\Entities\SomeElementTable;
 
 class SomeElementFieldComponent extends BaseUfComponent
 {
@@ -48,7 +49,7 @@ class SomeElementFieldComponent extends BaseUfComponent
             return null;
         }
 
-        $element = \Exam31\Ticket\SomeElementTable::getByPrimary($id)->fetch();
+        $element = SomeElementTable::getByPrimary($id)->fetch();
 
         return (!empty($element['TITLE'])) ? $element : null;
     }

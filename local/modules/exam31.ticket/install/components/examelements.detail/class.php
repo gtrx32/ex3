@@ -10,7 +10,7 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
 
-use Exam31\Ticket\SomeElementTable;
+use Exam31\Ticket\Entities\SomeElementTable;
 
 class ExamElementsDetailComponent extends CBitrixComponent implements Controllerable, Errorable
 {
