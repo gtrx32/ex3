@@ -29,8 +29,8 @@ class AdminLinkInjector
                                 return;
                             }
                             
-                            const extraBtnBox = document.querySelector('.menu-extra-btn-box');
-                            if (extraBtnBox === null) {
+                            const menuItemsBodyInner = document.querySelector('.menu-items-body-inner');
+                            if (menuItemsBodyInner === null) {
                                 return;
                             }
                             
@@ -44,7 +44,7 @@ class AdminLinkInjector
                             adminPanelLink.classList.add('ui-btn', 'ui-btn-sm', 'ui-btn-default');
                             
                             wrapperDiv.appendChild(adminPanelLink);
-                            extraBtnBox.parentNode.insertBefore(wrapperDiv, extraBtnBox);
+                            menuItemsBodyInner.appendChild(wrapperDiv);
                         });
                     JS,
                     inline: true
