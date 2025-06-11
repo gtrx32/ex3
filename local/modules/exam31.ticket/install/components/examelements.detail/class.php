@@ -177,6 +177,8 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
                 return [];
             }
 
+            $element['ACTIVE'] = $element['ACTIVE'] == '1' ? 'Y' : 'N';
+
             return $element;
 
         } catch (\Exception $e) {
