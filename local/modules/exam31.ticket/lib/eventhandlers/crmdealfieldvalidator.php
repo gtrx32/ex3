@@ -14,7 +14,7 @@ class CrmDealFieldValidator
             return true;
         }
 
-        $protectedFieldCode = 'UF_CRM_1749032750';
+        $protectedFieldCode = 'UF_CRM_1750142192458';
 
         if (!array_key_exists($protectedFieldCode, $arFields)) {
             return true;
